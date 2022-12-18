@@ -4,12 +4,17 @@ import { SCanvas } from "./Canvas.styled";
 export const Canvas = ({ brushColor }) => {
   const canvasRef = useRef(null);
 
-  const initCanvas = () => {
+  const resizeCanvas = () => {
     const { innerWidth, innerHeight } = window;
     const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+
+    const imgData = ctx.getImageData(0, 0, innerWidth, innerHeight);
 
     canvas.width = innerWidth;
     canvas.height = innerHeight;
+
+    ctx.putImageData(imgData, 0, 0);
   };
 
   const handleStartDraw = (e) => {
@@ -36,7 +41,11 @@ export const Canvas = ({ brushColor }) => {
   };
 
   useEffect(() => {
-    initCanvas();
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+    };
   }, []);
 
   return (
