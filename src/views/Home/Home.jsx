@@ -15,22 +15,29 @@ const colors = ["#000", "#f44 ", "#40f", "#4fa", "#af4"];
 
 export const Home = () => {
   const [brushColor, setBrushColor] = useState(colors[0]);
+  const [inEraserMode, setInEraserMode] = useState(false);
   const [shouldClear, setShouldClear] = useState(false);
 
   const handleColorChange = (color) => {
+    setInEraserMode(false);
     setBrushColor(color);
   };
 
-  const toggleShouldClear = () => {
+  const handleClearToggle = () => {
     setShouldClear(!shouldClear);
+  };
+
+  const handleEraserToggle = () => {
+    setInEraserMode(!inEraserMode);
   };
 
   return (
     <SPage>
       <Canvas
         brushColor={brushColor}
+        inEraserMode={inEraserMode}
         shouldClear={shouldClear}
-        toggleShouldClear={toggleShouldClear}
+        toggleShouldClear={handleClearToggle}
       />
       <SUIOverlay>
         <STopBar>
@@ -43,7 +50,8 @@ export const Home = () => {
         <SBottomBar>
           <SRoleText>You are drawing</SRoleText>
           <ColorPicker colors={colors} onChange={handleColorChange} />
-          <button onClick={toggleShouldClear}>clear</button>
+          <button onClick={handleEraserToggle}>eraser</button>
+          <button onClick={handleClearToggle}>clear</button>
         </SBottomBar>
       </SUIOverlay>
     </SPage>

@@ -1,10 +1,28 @@
 import React, { useEffect, useRef } from "react";
 import { SCanvas } from "./Canvas.styled";
 
-export const Canvas = ({ brushColor, shouldClear, toggleShouldClear }) => {
+const setEraserConfig = (ctx) => {
+  ctx.lineWidth = 24;
+  ctx.lineCap = "round";
+  ctx.globalCompositeOperation = "destionation-out";
+  ctx.strokeStyle = "#fff";
+};
+
+const setBrushConfig = (ctx, color) => {
+  ctx.lineWidth = 6;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = `${color}`;
+};
+
+export const Canvas = ({
+  brushColor,
+  inEraserMode,
+  shouldClear,
+  toggleShouldClear,
+}) => {
   const canvasRef = useRef(null);
 
-  const resizeCanvas = () => {
+  const handleResize = () => {
     const { innerWidth, innerHeight } = window;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -17,16 +35,18 @@ export const Canvas = ({ brushColor, shouldClear, toggleShouldClear }) => {
     ctx.putImageData(imgData, 0, 0);
   };
 
+  const setContextConfig = (ctx) => {
+    if (inEraserMode) return setEraserConfig(ctx);
+
+    setBrushConfig(ctx, brushColor);
+  };
+
   const handleStartDraw = (e) => {
     const { clientX, clientY } = e;
     const ctx = canvasRef.current.getContext("2d");
 
     ctx.beginPath();
-
-    ctx.lineWidth = 5;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = `${brushColor}`;
-
+    setContextConfig(ctx);
     ctx.moveTo(clientX, clientY);
   };
 
@@ -54,11 +74,11 @@ export const Canvas = ({ brushColor, shouldClear, toggleShouldClear }) => {
       return;
     }
 
-    resizeCanvas();
+    handleResize();
 
-    window.addEventListener("resize", resizeCanvas);
+    window.addEventListener("resize", handleResize);
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener("resize", handleResize);
     };
   }, [shouldClear]);
 
@@ -67,6 +87,7 @@ export const Canvas = ({ brushColor, shouldClear, toggleShouldClear }) => {
       ref={canvasRef}
       onMouseDown={handleStartDraw}
       onMouseMove={handleDraw}
+      inEraserMode={inEraserMode}
     />
   );
 };
