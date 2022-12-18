@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { SCanvas } from "./Canvas.styled";
 
-export const Canvas = ({ brushColor }) => {
+export const Canvas = ({ brushColor, shouldClear, toggleShouldClear }) => {
   const canvasRef = useRef(null);
 
   const resizeCanvas = () => {
@@ -40,13 +40,27 @@ export const Canvas = ({ brushColor }) => {
     ctx.stroke();
   };
 
+  const clearCanvas = () => {
+    const { innerWidth, innerHeight } = window;
+    const ctx = canvasRef.current.getContext("2d");
+
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+  };
+
   useEffect(() => {
+    if (shouldClear) {
+      clearCanvas();
+      toggleShouldClear();
+      return;
+    }
+
     resizeCanvas();
+
     window.addEventListener("resize", resizeCanvas);
     return () => {
       window.removeEventListener("resize", resizeCanvas);
     };
-  }, []);
+  }, [shouldClear]);
 
   return (
     <SCanvas
